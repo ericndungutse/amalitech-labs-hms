@@ -1,104 +1,93 @@
-CREATE TABLE "User" (
+-- DROP TABLES in correct order to avoid FK issues
+DROP TABLE IF EXISTS doctor_hospitalizations, hospitalization_wards, hospitalizations, patients, rotations, wards, departments, employees, users CASCADE;
+
+-- USERS table (Base)
+CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
-    surname VARCHAR(100) NOT NULL,
-    first_name VARCHAR(100) NOT NULL,
-    role VARCHAR(10) NOT NULL CHECK (role IN ('patient', 'doctor', 'nurse')),
-    address TEXT NOT NULL,
+    surname VARCHAR(50) NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    role VARCHAR(20) NOT NULL CHECK (role IN ('Doctor', 'Nurse', 'Patient')),
+    address VARCHAR(100),
     telephone_number VARCHAR(20)
 );
 
-CREATE TABLE Patient (
-    user_id INT PRIMARY KEY,
-    patient_number VARCHAR(20) UNIQUE NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES "User"(user_id)
-        ON DELETE CASCADE,
-    CHECK ((SELECT role FROM "User" WHERE user_id = Patient.user_id) = 'patient')
-);
-
-
-CREATE TABLE Employee (
-    user_id INT PRIMARY KEY,
-    employee_number VARCHAR(20) UNIQUE NOT NULL,
-    salary DECIMAL(10,2) NOT NULL,
-    department_id INT,  -- nullable for doctors
-    speciality VARCHAR(100),  -- only for doctors
-    FOREIGN KEY (user_id) REFERENCES "User"(user_id)
-        ON DELETE CASCADE,
-    FOREIGN KEY (department_id) REFERENCES Department(department_id),
-    CHECK ((SELECT role FROM "User" WHERE user_id = Employee.user_id) IN ('doctor', 'nurse')),
-    CHECK (
-        (SELECT role FROM "User" WHERE user_id = Employee.user_id) = 'doctor' AND speciality IS NOT NULL OR
-        (SELECT role FROM "User" WHERE user_id = Employee.user_id) = 'nurse' AND speciality IS NULL
-    )
-);
-
-
-CREATE TABLE Department (
+-- DEPARTMENTS table
+CREATE TABLE departments (
     department_id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    building VARCHAR(100),
-    director_employee_id INT NOT NULL,
-    FOREIGN KEY (director_employee_id) REFERENCES Employee(user_id)
-        ON DELETE SET NULL
+    name VARCHAR(50) NOT NULL,
+    building VARCHAR(50),
+    director_employee_id INTEGER,
+    FOREIGN KEY (director_employee_id) REFERENCES users(user_id)
 );
 
+-- EMPLOYEES table
+CREATE TABLE employees (
+    employee_id INTEGER PRIMARY KEY,
+    employee_number VARCHAR(20) UNIQUE NOT NULL,
+    department_id INTEGER,
+    salary NUMERIC(10,2),
+    FOREIGN KEY (employee_id) REFERENCES users(user_id),
+    FOREIGN KEY (department_id) REFERENCES departments(department_id)
+);
 
-CREATE TABLE Ward (
-    ward_number INT,
-    department_id INT,
-    number_of_beds INT NOT NULL,
-    supervisor_nurse_id INT NOT NULL,
+-- WARDS table
+CREATE TABLE wards (
+    ward_number INTEGER,
+    department_id INTEGER,
+    number_of_beds INTEGER,
+    supervisor_nurse_id INTEGER,
     PRIMARY KEY (ward_number, department_id),
-    FOREIGN KEY (department_id) REFERENCES Department(department_id),
-    FOREIGN KEY (supervisor_nurse_id) REFERENCES Employee(user_id),
-    CHECK (
-        (SELECT role FROM "User" WHERE user_id = supervisor_nurse_id) = 'nurse'
-    )
+    FOREIGN KEY (department_id) REFERENCES departments(department_id),
+    FOREIGN KEY (supervisor_nurse_id) REFERENCES employees(employee_id)
 );
 
--- ROTATION (only for nurses)
-CREATE TABLE Rotation (
+-- ROTATIONS table
+CREATE TABLE rotations (
     rotation_id SERIAL PRIMARY KEY,
-    nurse_id INT NOT NULL,
+    nurse_id INTEGER NOT NULL,
     rotation_date DATE NOT NULL,
-    from_dep_id INT NOT NULL,
-    to_dep_id INT NOT NULL,
-    FOREIGN KEY (nurse_id) REFERENCES Employee(user_id),
-    FOREIGN KEY (from_dep_id) REFERENCES Department(department_id),
-    FOREIGN KEY (to_dep_id) REFERENCES Department(department_id),
-    CHECK (
-        (SELECT role FROM "User" WHERE user_id = nurse_id) = 'nurse'
-    )
+    from_dep_id INTEGER,
+    to_dep_id INTEGER,
+    FOREIGN KEY (nurse_id) REFERENCES employees(employee_id),
+    FOREIGN KEY (from_dep_id) REFERENCES departments(department_id),
+    FOREIGN KEY (to_dep_id) REFERENCES departments(department_id)
 );
 
-CREATE TABLE Hospitalization (
+-- PATIENTS table
+CREATE TABLE patients (
+    patient_id INTEGER PRIMARY KEY,
+    patient_number VARCHAR(20) UNIQUE NOT NULL,
+    FOREIGN KEY (patient_id) REFERENCES users(user_id)
+);
+
+-- HOSPITALIZATIONS table
+CREATE TABLE hospitalizations (
     hospitalization_id SERIAL PRIMARY KEY,
-    patient_id INT NOT NULL,
+    patient_id INTEGER NOT NULL,
     admission_date DATE NOT NULL,
     discharge_date DATE,
     diagnosis TEXT,
-    FOREIGN KEY (patient_id) REFERENCES Patient(user_id)
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id)
 );
 
-CREATE TABLE DoctorHospitalization (
-    hospitalization_id INT,
-    employee_doctor_id INT,
-    PRIMARY KEY (hospitalization_id, employee_doctor_id),
-    FOREIGN KEY (hospitalization_id) REFERENCES Hospitalization(hospitalization_id),
-    FOREIGN KEY (employee_doctor_id) REFERENCES Employee(user_id),
-    CHECK (
-        (SELECT role FROM "User" WHERE user_id = employee_doctor_id) = 'doctor'
-    )
+-- DOCTOR_HOSPITALIZATIONS table
+CREATE TABLE doctor_hospitalizations (
+    hospitalization_id INTEGER,
+    doctor_employee_id INTEGER,
+    PRIMARY KEY (hospitalization_id, doctor_employee_id),
+    FOREIGN KEY (hospitalization_id) REFERENCES hospitalizations(hospitalization_id),
+    FOREIGN KEY (doctor_employee_id) REFERENCES employees(employee_id)
 );
 
-CREATE TABLE HospitalizationWard (
+-- HOSPITALIZATION_WARDS table
+CREATE TABLE hospitalization_wards (
     hospitalization_ward_id SERIAL PRIMARY KEY,
-    hospitalization_id INT NOT NULL,
-    ward_number INT NOT NULL,
-    department_id INT NOT NULL,
-    bed_number INT,
+    hospitalization_id INTEGER NOT NULL,
+    ward_number INTEGER NOT NULL,
+    department_id INTEGER NOT NULL,
+    bed_number INTEGER,
     start_time TIME,
     end_time TIME,
-    FOREIGN KEY (hospitalization_id) REFERENCES Hospitalization(hospitalization_id),
-    FOREIGN KEY (ward_number, department_id) REFERENCES Ward(ward_number, department_id)
+    FOREIGN KEY (hospitalization_id) REFERENCES hospitalizations(hospitalization_id),
+    FOREIGN KEY (ward_number, department_id) REFERENCES wards(ward_number, department_id)
 );
