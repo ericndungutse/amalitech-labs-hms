@@ -24,6 +24,7 @@ public class PatientConsoleApp {
                     case 1 -> viewAllPatients();
                     case 2 -> addPatient();
                     case 3 -> updatePatient();
+                    case 4 -> deletePatient();
                     case 5 -> {
                         logger.info("User exited the application. 👋");
                         return;
@@ -190,6 +191,40 @@ public class PatientConsoleApp {
         } catch (SQLException e) {
             logger.error("Failed to update patient: {}", e.getMessage());
             System.out.println("An error occurred while updating the patient.");
+        }
+    }
+
+    // Delete Patient
+    private void deletePatient() {
+        System.out.println("\n--- Delete Patient ---");
+
+        // Ask the user for the patient number to delete
+        System.out.print("Enter the Patient Number of the patient you want to delete: ");
+        String patientNumber = scanner.nextLine();
+
+        try {
+            Patient existingPatient = PatientDAO.getPatientByNumber(patientNumber);
+
+            if (existingPatient == null) {
+                logger.warn("No patient found with the provided patient number: {}", patientNumber);
+                System.out.println("No patient found with the provided patient number.");
+                return;
+            }
+
+            // Confirm deletion
+            System.out.print("Are you sure you want to delete the patient? (yes/no): ");
+            String confirmation = scanner.nextLine();
+
+            if ("yes".equalsIgnoreCase(confirmation)) {
+                PatientDAO.deletePatient(existingPatient.getPatientId());
+                logger.info("Patient deleted successfully: {}", existingPatient);
+                System.out.println("Patient deleted successfully.");
+            } else {
+                System.out.println("Patient deletion canceled.");
+            }
+        } catch (SQLException e) {
+            logger.error("Failed to delete patient: {}", e.getMessage());
+            System.out.println("An error occurred while deleting the patient.");
         }
     }
 }
