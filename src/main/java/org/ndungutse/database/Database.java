@@ -1,7 +1,6 @@
 package org.ndungutse.database;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,21 +9,20 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DatabaseSetup {
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseSetup.class);
+public class Database {
+    private static final Logger logger = LoggerFactory.getLogger(Database.class);
     private static final String URL = "jdbc:postgresql://localhost:5432/hms";
     private static final String USER = "postgres";
     private static final String PASSWORD = "eric";
 
     // Method to execute SQL script for database setup
-    public static void executeSqlScript(Path scriptFilePath) throws SQLException, IOException {
+    public static void initializeDatabase(Path scriptFilePath) throws SQLException, IOException {
         logger.info("Attempting to connect to the database at {}", URL);
 
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection connection = Database.getConnection();) {
             logger.info("Connection established successfully to database: {}", URL);
 
             // Read the SQL script from file
@@ -45,6 +43,10 @@ public class DatabaseSetup {
             }
 
         }
+    }
+
+    public static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
 }
