@@ -1,17 +1,6 @@
--- DROP TABLES in correct order to avoid FK issues
-DROP TABLE IF EXISTS doctor_hospitalizations,
-hospitalization_wards,
-hospitalizations,
-patients,
-rotations,
-wards,
-departments,
-employees,
-users CASCADE;
-
 -- USERS table (Base)
 CREATE TABLE
-    users (
+    IF NOT EXISTS users (
         user_id SERIAL PRIMARY KEY,
         surname VARCHAR(50) NOT NULL,
         first_name VARCHAR(50) NOT NULL,
@@ -22,7 +11,7 @@ CREATE TABLE
 
 -- DEPARTMENTS table
 CREATE TABLE
-    departments (
+    IF NOT EXISTS departments (
         department_id SERIAL PRIMARY KEY,
         name VARCHAR(50) NOT NULL,
         building VARCHAR(50),
@@ -32,7 +21,7 @@ CREATE TABLE
 
 -- EMPLOYEES table
 CREATE TABLE
-    employees (
+    IF NOT EXISTS employees (
         employee_id INTEGER PRIMARY KEY,
         employee_number VARCHAR(20) UNIQUE NOT NULL,
         department_id INTEGER,
@@ -43,7 +32,7 @@ CREATE TABLE
 
 -- WARDS table
 CREATE TABLE
-    wards (
+    IF NOT EXISTS wards (
         ward_number INTEGER,
         department_id INTEGER,
         number_of_beds INTEGER,
@@ -55,7 +44,7 @@ CREATE TABLE
 
 -- ROTATIONS table
 CREATE TABLE
-    rotations (
+    IF NOT EXISTS rotations (
         rotation_id SERIAL PRIMARY KEY,
         nurse_id INTEGER NOT NULL,
         rotation_date DATE NOT NULL,
@@ -68,7 +57,7 @@ CREATE TABLE
 
 -- PATIENTS table
 CREATE TABLE
-    patients (
+    IF NOT EXISTS patients (
         patient_id INTEGER PRIMARY KEY,
         patient_number VARCHAR(20) UNIQUE NOT NULL,
         FOREIGN KEY (patient_id) REFERENCES users (user_id)
@@ -76,7 +65,7 @@ CREATE TABLE
 
 -- HOSPITALIZATIONS table
 CREATE TABLE
-    hospitalizations (
+    IF NOT EXISTS hospitalizations (
         hospitalization_id SERIAL PRIMARY KEY,
         patient_id INTEGER NOT NULL,
         admission_date DATE NOT NULL,
@@ -87,7 +76,7 @@ CREATE TABLE
 
 -- DOCTOR_HOSPITALIZATIONS table
 CREATE TABLE
-    doctor_hospitalizations (
+    IF NOT EXISTS doctor_hospitalizations (
         hospitalization_id INTEGER,
         doctor_employee_id INTEGER,
         PRIMARY KEY (hospitalization_id, doctor_employee_id),
@@ -97,7 +86,7 @@ CREATE TABLE
 
 -- HOSPITALIZATION_WARDS table
 CREATE TABLE
-    hospitalization_wards (
+    IF NOT EXISTS hospitalization_wards (
         hospitalization_ward_id SERIAL PRIMARY KEY,
         hospitalization_id INTEGER NOT NULL,
         ward_number INTEGER NOT NULL,
@@ -109,7 +98,7 @@ CREATE TABLE
         FOREIGN KEY (ward_number, department_id) REFERENCES wards (ward_number, department_id)
     );
 
--- Insert 10 patients into USERS and PATIENTS tables (without specifying user_id)
+-- Insert 10 patients into USERS and PATIENTS tables
 INSERT INTO
     users (
         surname,

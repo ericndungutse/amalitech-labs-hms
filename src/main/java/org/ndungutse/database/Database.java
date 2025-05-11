@@ -2,13 +2,18 @@ package org.ndungutse.database;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.ndungutse.Main;
+import org.ndungutse.exceptions.ResourceNotFoundRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,11 +24,18 @@ public class Database {
     private static final String PASSWORD = "eric";
 
     // Method to execute SQL script for database setup
-    public static void initializeDatabase(Path scriptFilePath) throws SQLException, IOException {
-        logger.info("Attempting to connect to the database at {}", URL);
+    public static void initializeDatabase() throws SQLException, IOException, URISyntaxException {
+
+        URL path = Main.class.getClassLoader().getResource("create-schema.sql");
+        if (path == null) {
+            throw new ResourceNotFoundRuntimeException("Required resource 'create-schemas.sql' not found");
+        }
+
+        Path scriptFilePath = Paths.get(path.toURI());
 
         try (Connection connection = Database.getConnection();) {
             logger.info("Connection established successfully to database: {}", URL);
+            logger.info("Starting database setup using script at: {}", scriptFilePath);
 
             // Read the SQL script from file
             logger.info("Reading SQL script from file: {}", scriptFilePath);

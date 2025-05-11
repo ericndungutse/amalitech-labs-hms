@@ -2,38 +2,37 @@ package org.ndungutse;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 
 import org.ndungutse.database.Database;
-import org.ndungutse.exceptions.ResourceNotFoundRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-    public static void main(String[] args) throws SQLException {
-        // Step 1: Optionally set up DB
-        // try {
-        // setupDatabase();
-        // } catch (SQLException | IOException | URISyntaxException e) {
-        // logger.error(e.getMessage(), e);
-        // }
-        new PatientConsoleApp().run();
-
-    }
-
-    public static void setupDatabase() throws SQLException, IOException, URISyntaxException {
-        URL path = Main.class.getClassLoader().getResource("create-schema.sql");
-        if (path == null) {
-            throw new ResourceNotFoundRuntimeException("Required resource 'create-schemas.sql' not found");
+    public static void main(String[] args) throws SQLException, IOException, URISyntaxException {
+        try {
+            // Initialize Database
+            Database.initializeDatabase();
+        } catch (SQLException e) {
+            logger.error("Database error occurred: {}", e.getMessage());
+            logger.debug("Stack trace: ", e);
+            return;
+        } catch (IOException | URISyntaxException e) {
+            logger.error("Failed to read or access SQL script file: {}", e.getMessage());
+            logger.debug("Stack trace: ", e);
+            return;
+        } finally {
+            // Start the application
+            try {
+                logger.info("🚀 Starting Applications... 🚀");
+                new PatientConsoleApp().run();
+            } catch (Exception e) {
+                logger.error("Application error: {}", e.getMessage());
+                logger.debug("Stack trace: ", e);
+            }
         }
-        Path file = Paths.get(path.toURI());
-        logger.info("Starting database setup using script at: {}", file);
-        Database.initializeDatabase(file);
-        logger.info("Database setup completed successfully.");
+
     }
 }
