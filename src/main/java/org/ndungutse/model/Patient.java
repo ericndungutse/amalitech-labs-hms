@@ -18,6 +18,30 @@ public class Patient {
         this.phoneNumber = phoneNumber;
     }
 
+    public void setPatientId(int patientId) {
+        this.patientId = patientId;
+    }
+
+    public void setPatientNumber(String patientNumber) {
+        this.patientNumber = patientNumber;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
     public int getPatientId() {
         return patientId;
     }

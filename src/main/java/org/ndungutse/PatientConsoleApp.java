@@ -23,6 +23,7 @@ public class PatientConsoleApp {
                 switch (choice) {
                     case 1 -> viewAllPatients();
                     case 2 -> addPatient();
+                    case 3 -> updatePatient();
                     case 5 -> {
                         logger.info("User exited the application. 👋");
                         return;
@@ -130,6 +131,65 @@ public class PatientConsoleApp {
             logger.info("New patient added successfully: {}", newPatient);
         } catch (SQLException e) {
             logger.error("Failed to add patient: {}", e.getMessage());
+        }
+    }
+
+    // Update Patient
+    private void updatePatient() {
+        System.out.println("\n--- Update Patient ---");
+
+        // Ask the user for the patient number to update
+        System.out.print("Enter the Patient Number of the patient you want to update: ");
+        String patientNumber = scanner.nextLine();
+
+        try {
+            Patient existingPatient = PatientDAO.getPatientByNumber(patientNumber);
+
+            if (existingPatient == null) {
+                logger.warn("No patient found with the provided patient number: {}", patientNumber);
+                System.out.println("No patient found with the provided patient number.");
+                return;
+            }
+
+            System.out.println("Current details for patient " + patientNumber + ":");
+            System.out.println("Surname: " + existingPatient.getSurname());
+            System.out.println("First Name: " + existingPatient.getFirstName());
+            System.out.println("Address: " + existingPatient.getAddress());
+            System.out.println("Phone Number: " + existingPatient.getPhoneNumber());
+
+            // Input new values
+            System.out.print("Enter new Surname (leave blank to keep current): ");
+            String newSurname = scanner.nextLine();
+            if (!newSurname.isEmpty()) {
+                existingPatient.setSurname(newSurname);
+            }
+
+            System.out.print("Enter new First Name (leave blank to keep current): ");
+            String newFirstName = scanner.nextLine();
+            if (!newFirstName.isEmpty()) {
+                existingPatient.setFirstName(newFirstName);
+            }
+
+            System.out.print("Enter new Address (leave blank to keep current): ");
+            String newAddress = scanner.nextLine();
+            if (!newAddress.isEmpty()) {
+                existingPatient.setAddress(newAddress);
+            }
+
+            System.out.print("Enter new Phone Number (leave blank to keep current): ");
+            String newPhoneNumber = scanner.nextLine();
+            if (!newPhoneNumber.isEmpty()) {
+                existingPatient.setPhoneNumber(newPhoneNumber);
+            }
+
+            // Update the patient in the database
+            PatientDAO.updatePatient(existingPatient);
+            logger.info("Patient updated successfully: {}", existingPatient);
+            System.out.println("Patient details updated successfully.");
+
+        } catch (SQLException e) {
+            logger.error("Failed to update patient: {}", e.getMessage());
+            System.out.println("An error occurred while updating the patient.");
         }
     }
 }

@@ -132,4 +132,38 @@ public class PatientDAO {
         }
     }
 
+    public static Patient getPatientByNumber(String patientNumber) throws SQLException {
+        String query = "SELECT u.user_id, u.surname, u.first_name, u.address, u.telephone_number " +
+                "FROM users u " +
+                "JOIN patients p ON u.user_id = p.patient_id " +
+                "WHERE p.patient_number = ?";
+
+        Patient patient = null;
+
+        try (Connection connection = Database.getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, patientNumber);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+
+                    String surname = resultSet.getString("surname");
+                    String firstName = resultSet.getString("first_name");
+                    String address = resultSet.getString("address");
+                    String phoneNumber = resultSet.getString("telephone_number");
+
+                    patient = new Patient(
+                            resultSet.getInt("user_id"),
+                            patientNumber,
+                            surname,
+                            firstName,
+                            address,
+                            phoneNumber);
+                }
+            }
+        }
+
+        return patient;
+    }
+
 }
