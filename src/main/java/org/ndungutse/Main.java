@@ -20,14 +20,14 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) throws SQLException {
+        // Step 1: Optionally set up DB
         // try {
         // setupDatabase();
         // } catch (SQLException | IOException | URISyntaxException e) {
         // logger.error(e.getMessage(), e);
         // }
 
-        // Create a new Patient
-
+        // Step 2: Test patient creation (optional, can uncomment if needed)
         // logger.info("Create Patient Object.");
         // Patient newPatient = new Patient(
         // 0,
@@ -44,20 +44,43 @@ public class Main {
         // logger.error("Failed to add patient: {}", e.getMessage(), e);
         // }
 
-        List<Patient> patients = new ArrayList<>();
-        patients = PatientDAO.getAllPatients();
-
+        // Step 3: Fetch and print all patients before update
+        List<Patient> patients = PatientDAO.getAllPatients();
+        logger.info("Before update:");
         for (Patient patient : patients) {
             System.out.println(patient);
         }
-        PatientDAO.deletePatient(11);
+
+        // Step 4: Update a patient (change values to match an existing patient number)
+        Patient updatedPatient = new Patient(
+                10,
+                "PN0010",
+                "UpdatedSurname",
+                "UpdatedFirstName",
+                "UpdatedAddress",
+                "0788999999");
+
+        try {
+            PatientDAO.updatePatient(updatedPatient);
+            logger.info("Patient updated successfully.");
+        } catch (SQLException e) {
+            logger.error("Failed to update patient: {}", e.getMessage(), e);
+        }
+
+        // Step 5: Fetch and print all patients after update
         patients = PatientDAO.getAllPatients();
-
-        System.out.println("AFTER DELETE ***********************************************");
-
+        logger.info("After update:");
         for (Patient patient : patients) {
             System.out.println(patient);
         }
+
+        // Optional Step: Test delete
+        // PatientDAO.deletePatient(11); // Adjust ID as needed
+        // logger.info("After delete:");
+        // patients = PatientDAO.getAllPatients();
+        // for (Patient patient : patients) {
+        // System.out.println(patient);
+        // }
 
     }
 

@@ -9,10 +9,14 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ndungutse.Main;
 import org.ndungutse.database.Database;
 import org.ndungutse.model.Patient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PatientDAO {
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static List<Patient> getAllPatients() throws SQLException {
         String sql = "SELECT u.user_id, u.surname, u.first_name, u.address, u.telephone_number, p.patient_number " +
@@ -89,6 +93,42 @@ public class PatientDAO {
 
             // Commit if both succeed
             connection.commit();
+        }
+    }
+
+    // Update Patient
+    public static void updatePatient(Patient patient) throws SQLException {
+        String updateUserSQL = "UPDATE users SET surname = ?, first_name = ?, address = ?, telephone_number = ? " +
+                "WHERE user_id = (SELECT patient_id FROM patients WHERE patient_number = ?)";
+
+        try (
+                Connection connection = Database.getConnection();
+                PreparedStatement userStmt = connection.prepareStatement(updateUserSQL)) {
+
+            // Start Transaction
+            connection.setAutoCommit(false);
+
+            // Set parameters for the update query
+            userStmt.setString(1, patient.getSurname());
+            userStmt.setString(2, patient.getFirstName());
+            userStmt.setString(3, patient.getAddress());
+            userStmt.setString(4, patient.getPhoneNumber());
+            userStmt.setString(5, patient.getPatientNumber());
+
+            // Execute the update statement
+            int affectedRows = userStmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                // Commit transaction if the update is successful
+                connection.commit();
+            } else {
+                // Rollback transaction if no patient was found with the given patient number
+                connection.rollback();
+                logger.warn(
+                        "Attempted to update patient, but no patient found with number: " + patient.getPatientNumber());
+
+            }
+
         }
     }
 
