@@ -18,6 +18,30 @@ public class Patient {
         this.phoneNumber = phoneNumber;
     }
 
+    public int getPatientId() {
+        return patientId;
+    }
+
+    public String getPatientNumber() {
+        return patientNumber;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
     @Override
     public String toString() {
         return "Patient [patientId=" + patientId + ", patientNumber=" + patientNumber + ", surname=" + surname

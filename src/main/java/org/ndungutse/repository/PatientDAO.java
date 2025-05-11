@@ -2,6 +2,7 @@ package org.ndungutse.repository;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -32,6 +33,37 @@ public class PatientDAO {
 
         }
         return patients;
+    }
+
+    // Add new Patient
+    public static void createPatient(Patient patient) throws SQLException {
+        String insertUserSQL = "INSERT INTO users (surname, first_name, role, address, telephone_number) " +
+                "VALUES (?, ?, 'Patient', ?, ?)";
+        String insertPatientSQL = "INSERT INTO patients (patient_id, patient_number) " +
+                "VALUES (currval('users_user_id_seq'), ?)";
+
+        try (
+                Connection connection = Database.getConnection();
+                PreparedStatement userStmt = connection.prepareStatement(insertUserSQL);
+                PreparedStatement patientStmt = connection.prepareStatement(insertPatientSQL)) {
+            // Start Transaction
+            connection.setAutoCommit(false);
+
+            // Insert into users
+            userStmt.setString(1, patient.getSurname());
+            userStmt.setString(2, patient.getFirstName());
+            userStmt.setString(3, patient.getAddress());
+            userStmt.setString(4, patient.getPhoneNumber());
+            userStmt.executeUpdate();
+
+            // Insert into patients using currval of users_user_id_seq
+            patientStmt.setString(1, patient.getPatientNumber());
+            patientStmt.executeUpdate();
+
+            // Commit if both succeed
+            connection.commit();
+
+        }
     }
 
 }

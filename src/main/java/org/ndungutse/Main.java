@@ -19,16 +19,34 @@ public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) throws SQLException {
-        try {
-            setupDatabase();
-        } catch (SQLException | IOException | URISyntaxException e) {
-            logger.error(e.getMessage(), e);
+        // try {
+        // setupDatabase();
+        // } catch (SQLException | IOException | URISyntaxException e) {
+        // logger.error(e.getMessage(), e);
+        // }
+
+        List<Patient> patients = PatientDAO.getAllPatients();
+
+        for (Patient patient : patients) {
+            System.out.println(patient);
         }
 
-        // List<Patient> patients = PatientDAO.getAllPatients();
+        // Create a new Patient
 
-        // for (Patient patient : patients) {
-        // System.out.println(patient);
+        // logger.info("Create Patient Object.");
+        // Patient newPatient = new Patient(
+        // 0,
+        // "P001",
+        // "Ndungutse",
+        // "Eric",
+        // "Kigali",
+        // "0788123456");
+
+        // try {
+        // PatientDAO.createPatient(newPatient);
+        // logger.info("New patient added successfully.");
+        // } catch (SQLException e) {
+        // logger.error("Failed to add patient: {}", e.getMessage(), e);
         // }
 
     }
