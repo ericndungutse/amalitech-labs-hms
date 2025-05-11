@@ -13,7 +13,6 @@ public class PatientConsoleApp {
     private static final Logger logger = LoggerFactory.getLogger(PatientConsoleApp.class);
     private final Scanner scanner = new Scanner(System.in);
 
-    // Start Application
     public void run() {
         logger.info("Starting Patient Console Application...");
         while (true) {
@@ -27,15 +26,14 @@ public class PatientConsoleApp {
                     case 4 -> deletePatient();
                     case 5 -> getPatientByNumber();
                     case 6 -> {
-                        logger.info("User exited the application. 👋");
+                        System.out.println("Goodbye!");
                         return;
                     }
-                    default -> {
-                        logger.warn("Invalid menu choice entered: {}", choice);
-                    }
+                    default -> System.out.println("Invalid choice. Please try again.");
                 }
             } catch (SQLException e) {
-                logger.error("Database error occurred: {}", e.getMessage(), e);
+                logger.error("Database error: {}", e.getMessage(), e);
+                System.out.println("An internal error occurred. Please try again later.");
             }
         }
     }
@@ -60,7 +58,6 @@ public class PatientConsoleApp {
             Patient patient = PatientDAO.getPatientByNumber(patientNumber);
 
             if (patient == null) {
-                logger.info("No patient found with patient number: {}", patientNumber);
                 System.out.println("No patient found with the provided patient number.");
             } else {
                 System.out.println("\nPatient Details:");
@@ -71,7 +68,7 @@ public class PatientConsoleApp {
                 System.out.println("Phone Number: " + patient.getPhoneNumber());
             }
         } catch (SQLException e) {
-            logger.error("Error retrieving patient by number: {}", e.getMessage());
+            logger.error("Error retrieving patient by number: {}", e.getMessage(), e);
             System.out.println("An error occurred while retrieving the patient.");
         }
     }
@@ -80,25 +77,21 @@ public class PatientConsoleApp {
         try {
             return Integer.parseInt(scanner.nextLine());
         } catch (NumberFormatException e) {
-            logger.warn("Failed to parse user input to integer.", e);
             return -1;
         }
     }
 
     private void viewAllPatients() throws SQLException {
-        logger.info("User selected: View All Patients");
         List<Patient> patients = PatientDAO.getAllPatients();
         if (patients.isEmpty()) {
-            logger.info("No patients found in the database.");
+            System.out.println("No patients found.");
         } else {
-            // Fixed column widths
             int addressColumnWidth = 80;
             int patientNumberColumnWidth = 15;
             int surnameColumnWidth = 15;
             int firstNameColumnWidth = 20;
             int phoneColumnWidth = 20;
 
-            // Table Header with borders (no column separators)
             String header = String.format("%-15s %-15s %-20s %-80s %-20s",
                     "Patient Number", "Surname", "First Name", "Address", "Phone Number");
 
@@ -108,12 +101,10 @@ public class PatientConsoleApp {
                     "-".repeat(addressColumnWidth) + "-" +
                     "-".repeat(phoneColumnWidth);
 
-            // Print the border and header
             System.out.println(border);
             System.out.println(header);
             System.out.println(border);
 
-            // Printing each patient's details in a tabular format (no column separators)
             for (Patient patient : patients) {
                 String patientRow = String.format("%-15s %-15s %-20s %-80s %-20s",
                         patient.getPatientNumber(),
@@ -124,17 +115,13 @@ public class PatientConsoleApp {
                 System.out.println(patientRow);
             }
 
-            // Print bottom border
             System.out.println(border);
-
         }
     }
 
-    // Add Patient
     private void addPatient() {
         System.out.println("\n--- Add New Patient ---");
 
-        // Input patient details from the user
         System.out.println("Enter Patient Number: ");
         String patientNumber = scanner.nextLine();
 
@@ -150,23 +137,20 @@ public class PatientConsoleApp {
         System.out.println("Enter Phone Number: ");
         String phoneNumber = scanner.nextLine();
 
-        // Create patient object
         Patient newPatient = new Patient(0, patientNumber, surname, firstName, address, phoneNumber);
 
         try {
-            // Add patient to the database
             PatientDAO.createPatient(newPatient);
-            logger.info("New patient added successfully: {}", newPatient);
+            System.out.println("New patient added successfully.");
         } catch (SQLException e) {
-            logger.error("Failed to add patient: {}", e.getMessage());
+            logger.error("Failed to add patient: {}", e.getMessage(), e);
+            System.out.println("Failed to add patient.");
         }
     }
 
-    // Update Patient
     private void updatePatient() {
         System.out.println("\n--- Update Patient ---");
 
-        // Ask the user for the patient number to update
         System.out.print("Enter the Patient Number of the patient you want to update: ");
         String patientNumber = scanner.nextLine();
 
@@ -174,7 +158,6 @@ public class PatientConsoleApp {
             Patient existingPatient = PatientDAO.getPatientByNumber(patientNumber);
 
             if (existingPatient == null) {
-                logger.warn("No patient found with the provided patient number: {}", patientNumber);
                 System.out.println("No patient found with the provided patient number.");
                 return;
             }
@@ -185,7 +168,6 @@ public class PatientConsoleApp {
             System.out.println("Address: " + existingPatient.getAddress());
             System.out.println("Phone Number: " + existingPatient.getPhoneNumber());
 
-            // Input new values
             System.out.print("Enter new Surname (leave blank to keep current): ");
             String newSurname = scanner.nextLine();
             if (!newSurname.isEmpty()) {
@@ -210,22 +192,17 @@ public class PatientConsoleApp {
                 existingPatient.setPhoneNumber(newPhoneNumber);
             }
 
-            // Update the patient in the database
             PatientDAO.updatePatient(existingPatient);
-            logger.info("Patient updated successfully: {}", existingPatient);
             System.out.println("Patient details updated successfully.");
-
         } catch (SQLException e) {
-            logger.error("Failed to update patient: {}", e.getMessage());
+            logger.error("Failed to update patient: {}", e.getMessage(), e);
             System.out.println("An error occurred while updating the patient.");
         }
     }
 
-    // Delete Patient
     private void deletePatient() {
         System.out.println("\n--- Delete Patient ---");
 
-        // Ask the user for the patient number to delete
         System.out.print("Enter the Patient Number of the patient you want to delete: ");
         String patientNumber = scanner.nextLine();
 
@@ -233,24 +210,21 @@ public class PatientConsoleApp {
             Patient existingPatient = PatientDAO.getPatientByNumber(patientNumber);
 
             if (existingPatient == null) {
-                logger.warn("No patient found with the provided patient number: {}", patientNumber);
                 System.out.println("No patient found with the provided patient number.");
                 return;
             }
 
-            // Confirm deletion
             System.out.print("Are you sure you want to delete the patient? (yes/no): ");
             String confirmation = scanner.nextLine();
 
             if ("yes".equalsIgnoreCase(confirmation)) {
                 PatientDAO.deletePatient(existingPatient.getPatientId());
-                logger.info("Patient deleted successfully: {}", existingPatient);
                 System.out.println("Patient deleted successfully.");
             } else {
                 System.out.println("Patient deletion canceled.");
             }
         } catch (SQLException e) {
-            logger.error("Failed to delete patient: {}", e.getMessage());
+            logger.error("Failed to delete patient: {}", e.getMessage(), e);
             System.out.println("An error occurred while deleting the patient.");
         }
     }
