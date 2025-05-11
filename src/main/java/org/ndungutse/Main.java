@@ -26,61 +26,7 @@ public class Main {
         // } catch (SQLException | IOException | URISyntaxException e) {
         // logger.error(e.getMessage(), e);
         // }
-
-        // Step 2: Test patient creation (optional, can uncomment if needed)
-        // logger.info("Create Patient Object.");
-        // Patient newPatient = new Patient(
-        // 0,
-        // "P001",
-        // "Ndungutse",
-        // "Eric",
-        // "Kigali",
-        // "0788123456");
-
-        // try {
-        // PatientDAO.createPatient(newPatient);
-        // logger.info("New patient added successfully.");
-        // } catch (SQLException e) {
-        // logger.error("Failed to add patient: {}", e.getMessage(), e);
-        // }
-
-        // Step 3: Fetch and print all patients before update
-        List<Patient> patients = PatientDAO.getAllPatients();
-        logger.info("Before update:");
-        for (Patient patient : patients) {
-            System.out.println(patient);
-        }
-
-        // Step 4: Update a patient (change values to match an existing patient number)
-        Patient updatedPatient = new Patient(
-                10,
-                "PN0010",
-                "UpdatedSurname",
-                "UpdatedFirstName",
-                "UpdatedAddress",
-                "0788999999");
-
-        try {
-            PatientDAO.updatePatient(updatedPatient);
-            logger.info("Patient updated successfully.");
-        } catch (SQLException e) {
-            logger.error("Failed to update patient: {}", e.getMessage(), e);
-        }
-
-        // Step 5: Fetch and print all patients after update
-        patients = PatientDAO.getAllPatients();
-        logger.info("After update:");
-        for (Patient patient : patients) {
-            System.out.println(patient);
-        }
-
-        // Optional Step: Test delete
-        // PatientDAO.deletePatient(11); // Adjust ID as needed
-        // logger.info("After delete:");
-        // patients = PatientDAO.getAllPatients();
-        // for (Patient patient : patients) {
-        // System.out.println(patient);
-        // }
+        new PatientConsoleApp().run();
 
     }
 
