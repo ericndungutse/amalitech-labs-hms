@@ -1,20 +1,16 @@
 package org.ndungutse;
 
-import org.ndungutse.database.Database;
-import org.ndungutse.exceptions.ResourceNotFoundRuntimeException;
-import org.ndungutse.model.Patient;
-import org.ndungutse.repository.PatientDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.ndungutse.database.Database;
+import org.ndungutse.exceptions.ResourceNotFoundRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Main {
     private static final Logger logger = LoggerFactory.getLogger(Main.class);

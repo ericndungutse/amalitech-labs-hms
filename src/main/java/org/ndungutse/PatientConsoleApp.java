@@ -22,19 +22,17 @@ public class PatientConsoleApp {
             try {
                 switch (choice) {
                     case 1 -> viewAllPatients();
+                    case 2 -> addPatient();
                     case 5 -> {
-                        logger.info("User exited the application.");
-                        System.out.println("Exiting application. Goodbye!");
+                        logger.info("User exited the application. 👋");
                         return;
                     }
                     default -> {
-                        System.out.println("Invalid choice. Please try again.");
                         logger.warn("Invalid menu choice entered: {}", choice);
                     }
                 }
             } catch (SQLException e) {
                 logger.error("Database error occurred: {}", e.getMessage(), e);
-                System.out.println("Database error: " + e.getMessage());
             }
         }
     }
@@ -63,10 +61,75 @@ public class PatientConsoleApp {
         List<Patient> patients = PatientDAO.getAllPatients();
         if (patients.isEmpty()) {
             logger.info("No patients found in the database.");
-            System.out.println("No patients found.");
         } else {
-            logger.info("Displaying {} patients.", patients.size());
-            patients.forEach(System.out::println);
+            // Fixed column widths
+            int addressColumnWidth = 80;
+            int patientNumberColumnWidth = 15;
+            int surnameColumnWidth = 15;
+            int firstNameColumnWidth = 20;
+            int phoneColumnWidth = 20;
+
+            // Table Header with borders (no column separators)
+            String header = String.format("%-15s %-15s %-20s %-80s %-20s",
+                    "Patient Number", "Surname", "First Name", "Address", "Phone Number");
+
+            String border = "-".repeat(patientNumberColumnWidth) + "-" +
+                    "-".repeat(surnameColumnWidth) + "-" +
+                    "-".repeat(firstNameColumnWidth) + "-" +
+                    "-".repeat(addressColumnWidth) + "-" +
+                    "-".repeat(phoneColumnWidth);
+
+            // Print the border and header
+            System.out.println(border);
+            System.out.println(header);
+            System.out.println(border);
+
+            // Printing each patient's details in a tabular format (no column separators)
+            for (Patient patient : patients) {
+                String patientRow = String.format("%-15s %-15s %-20s %-80s %-20s",
+                        patient.getPatientNumber(),
+                        patient.getSurname(),
+                        patient.getFirstName(),
+                        patient.getAddress(),
+                        patient.getPhoneNumber());
+                System.out.println(patientRow);
+            }
+
+            // Print bottom border
+            System.out.println(border);
+
+        }
+    }
+
+    // Add Patient
+    private void addPatient() {
+        System.out.println("\n--- Add New Patient ---");
+
+        // Input patient details from the user
+        System.out.println("Enter Patient Number: ");
+        String patientNumber = scanner.nextLine();
+
+        System.out.println("Enter Surname: ");
+        String surname = scanner.nextLine();
+
+        System.out.println("Enter First Name: ");
+        String firstName = scanner.nextLine();
+
+        System.out.println("Enter Address: ");
+        String address = scanner.nextLine();
+
+        System.out.println("Enter Phone Number: ");
+        String phoneNumber = scanner.nextLine();
+
+        // Create patient object
+        Patient newPatient = new Patient(0, patientNumber, surname, firstName, address, phoneNumber);
+
+        try {
+            // Add patient to the database
+            PatientDAO.createPatient(newPatient);
+            logger.info("New patient added successfully: {}", newPatient);
+        } catch (SQLException e) {
+            logger.error("Failed to add patient: {}", e.getMessage());
         }
     }
 }
