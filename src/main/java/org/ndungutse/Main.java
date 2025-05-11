@@ -1,20 +1,36 @@
 package org.ndungutse;
 
 import org.ndungutse.database.DatabaseSetup;
+import org.ndungutse.exceptions.ResourceNotFoundRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.Files;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
-    public static void main(String[] args) throws SQLException, IOException {
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-        Path file = Paths.get("E:\\Dev Env 1\\amalitech\\Labs\\week 6\\hospital_managment_system\\src\\main\\resources\\create-schema.sql");
+    public static void main(String[] args) {
+        try {
+            setupDatabase();
+        } catch (SQLException | IOException | URISyntaxException e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
 
-        DatabaseSetup.executeSqlScript(file.toString());
+    public static void setupDatabase() throws SQLException, IOException, URISyntaxException {
+        URL path = Main.class.getClassLoader().getResource("create-schema.sql");
+        if (path == null) {
+            throw new ResourceNotFoundRuntimeException("Required resource 'create-schemas.sql' not found");
+        }
+        Path file = Paths.get(path.toURI());
+        logger.info("Starting database setup using script at: {}", file);
+        DatabaseSetup.executeSqlScript(file);
+        logger.info("Database setup completed successfully.");
     }
 }
