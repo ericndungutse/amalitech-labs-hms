@@ -25,7 +25,8 @@ public class PatientConsoleApp {
                     case 2 -> addPatient();
                     case 3 -> updatePatient();
                     case 4 -> deletePatient();
-                    case 5 -> {
+                    case 5 -> getPatientByNumber();
+                    case 6 -> {
                         logger.info("User exited the application. 👋");
                         return;
                     }
@@ -45,8 +46,34 @@ public class PatientConsoleApp {
         System.out.println("2. Add Patient");
         System.out.println("3. Update Patient");
         System.out.println("4. Delete Patient");
-        System.out.println("5. Exit");
+        System.out.println("5. Get Patient by Patient Number");
+        System.out.println("6. Exit");
         System.out.print("Enter your choice: ");
+    }
+
+    private void getPatientByNumber() {
+        System.out.println("\n--- Get Patient by Patient Number ---");
+        System.out.print("Enter Patient Number: ");
+        String patientNumber = scanner.nextLine();
+
+        try {
+            Patient patient = PatientDAO.getPatientByNumber(patientNumber);
+
+            if (patient == null) {
+                logger.info("No patient found with patient number: {}", patientNumber);
+                System.out.println("No patient found with the provided patient number.");
+            } else {
+                System.out.println("\nPatient Details:");
+                System.out.println("Patient Number: " + patient.getPatientNumber());
+                System.out.println("Surname: " + patient.getSurname());
+                System.out.println("First Name: " + patient.getFirstName());
+                System.out.println("Address: " + patient.getAddress());
+                System.out.println("Phone Number: " + patient.getPhoneNumber());
+            }
+        } catch (SQLException e) {
+            logger.error("Error retrieving patient by number: {}", e.getMessage());
+            System.out.println("An error occurred while retrieving the patient.");
+        }
     }
 
     private int getUserChoice() {
