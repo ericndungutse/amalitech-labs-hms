@@ -13,6 +13,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -24,12 +25,6 @@ public class Main {
         // } catch (SQLException | IOException | URISyntaxException e) {
         // logger.error(e.getMessage(), e);
         // }
-
-        List<Patient> patients = PatientDAO.getAllPatients();
-
-        for (Patient patient : patients) {
-            System.out.println(patient);
-        }
 
         // Create a new Patient
 
@@ -48,6 +43,21 @@ public class Main {
         // } catch (SQLException e) {
         // logger.error("Failed to add patient: {}", e.getMessage(), e);
         // }
+
+        List<Patient> patients = new ArrayList<>();
+        patients = PatientDAO.getAllPatients();
+
+        for (Patient patient : patients) {
+            System.out.println(patient);
+        }
+        PatientDAO.deletePatient(11);
+        patients = PatientDAO.getAllPatients();
+
+        System.out.println("AFTER DELETE ***********************************************");
+
+        for (Patient patient : patients) {
+            System.out.println(patient);
+        }
 
     }
 

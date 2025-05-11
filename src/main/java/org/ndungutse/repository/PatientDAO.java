@@ -66,4 +66,30 @@ public class PatientDAO {
         }
     }
 
+    // Delete Patient
+    public static void deletePatient(int patientId) throws SQLException {
+        String deletePatientSQL = "DELETE FROM patients WHERE patient_id = ?";
+        String deleteUserSQL = "DELETE FROM users WHERE user_id = ?";
+
+        try (
+                Connection connection = Database.getConnection();
+                PreparedStatement patientStmt = connection.prepareStatement(deletePatientSQL);
+                PreparedStatement userStmt = connection.prepareStatement(deleteUserSQL)) {
+
+            // Start Transaction
+            connection.setAutoCommit(false);
+
+            // Delete from patients
+            patientStmt.setInt(1, patientId);
+            patientStmt.executeUpdate();
+
+            // Delete from users
+            userStmt.setInt(1, patientId);
+            userStmt.executeUpdate();
+
+            // Commit if both succeed
+            connection.commit();
+        }
+    }
+
 }
